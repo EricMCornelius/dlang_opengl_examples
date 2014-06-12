@@ -6,6 +6,10 @@ import std.stdio, std.algorithm, std.range, std.file, std.string, std.json, std.
 
 alias float[3] Vec3;
 
+Vec3 rotate(Vec3 base, float d) {
+  return [base[0] * cos(d) - base[1] * sin(d), base[0] * sin(d) + base[1] * cos(d), base[2]];
+}
+
 Vec3 scale(Vec3 base, Vec3 s) {
   return [base[0] * s[0], base[1] * s[1], base[2] * s[2]];
 }
@@ -59,6 +63,18 @@ struct Square {
 
   this(JSONValue def) {
     
+  }
+};
+
+struct Tri {
+  Geometry geometry = [[
+    [-1.0, -1.0,  0.0],
+    [ 0.0,  1.0,  0.0],
+    [ 1.0, -1.0,  0.0]
+  ]];
+
+  this(JSONValue def) {
+
   }
 };
 
@@ -137,6 +153,10 @@ Node processScene(JSONValue curr, Material[string] materials, Geometry[string] o
     auto obj = objects[def["object"].str];
     auto mat = materials[def["material"].str];
    
+    float rotation = 0.0;
+    if ("rotate" in def.object)
+      rotation = PI * def["rotate"].floating / 180;
+
     Vec3 scale = [1.0, 1.0, 1.0];
     if ("scale" in def.object)
       for (auto i = 0; i < 3; ++i)
@@ -150,9 +170,9 @@ Node processScene(JSONValue curr, Material[string] materials, Geometry[string] o
     Mesh mesh;
     foreach (tri; obj) {
       mesh.triangles ~= [
-        Vertex(tri[0].scale(scale).offset(position), [0, 0, 1], mat.color),
-        Vertex(tri[1].scale(scale).offset(position), [0, 0, 1], mat.color),
-        Vertex(tri[2].scale(scale).offset(position), [0, 0, 1], mat.color)
+        Vertex(tri[0].rotate(rotation).scale(scale).offset(position), [0, 0, 1], mat.color),
+        Vertex(tri[1].rotate(rotation).scale(scale).offset(position), [0, 0, 1], mat.color),
+        Vertex(tri[2].rotate(rotation).scale(scale).offset(position), [0, 0, 1], mat.color)
       ];
     }
 
@@ -183,10 +203,16 @@ Vertex[] loadModel(string filename) {
     switch (type) {
       case "square": {
         auto obj = Square(def);
+        objects[name] = obj.geometry;
         break;
       }
       case "circle": {
         auto obj = Circle(def);
+        objects[name] = obj.geometry;
+        break;
+      }
+      case "triangle": {
+        auto obj = Tri(def);
         objects[name] = obj.geometry;
         break;
       }

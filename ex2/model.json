@@ -1,10 +1,19 @@
 {
   "scene": {
-    "first": {
+    "body": {
       "object": "c1",
       "material": "m1",
       "position": [0.0, 0.0, -0.2],
-      "scale": [1.0, 1.0, 1.0]
+      "scale": [1.0, 1.0, 1.0],
+      "children": {
+        "nose": {
+          "object": "t1",
+          "material": "m3",
+          "rotate": 0.0,
+          "position": [0.0, 0.0, -0.5],
+          "scale": [0.25, 0.25, 0.25]
+        }
+      }
     },
     "left": {
       "object": "c1",
@@ -52,6 +61,9 @@
     },
     "c1": {
       "type": "circle"
+    },
+    "t1": {
+      "type": "triangle"
     }
   }
 }
